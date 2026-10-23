@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUKS . 3D Cyber-Architect & Full-Cycle Web</title>
+    <!-- Сучасні IT-шрифти: Unbounded, Manrope та JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&family=Unbounded:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#050706',
+                        surface: '#0b110e',
+                        neon: {
+                            DEFAULT: '#10b981',
+                            light: '#7bffb5',
+                            dark: '#008f39'
+                        },
+                        gold: '#C5A059'
+                    },
+                    fontFamily: {
+                        cinzel: ['Unbounded', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050706;
+            color: #e2e8f0;
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Фонова кібер-сітка */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(to right, rgba(243, 17, 153, 0.367) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(28, 1, 26, 0.892) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* 3D Скляна картка з відблиском */
+        .glass-3d {
+            position: relative;
+            background: linear-gradient(135deg, rgba(16, 24, 20, 0.85) 0%, rgba(6, 9, 8, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 230, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 0, 195, 0.905);
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.15s cubic-bezier(0.03, 0.98, 0.52, 0.99), border-color 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .glass-3d:hover {
+            border-color: rgba(255, 0, 255, 0.7);
+            box-shadow: 0 25px 50px rgba(235, 6, 128, 0.805), inset 0 1px 0 rgba(232, 5, 172, 0.867);
+        }
+
+        .glare {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, rgba(233, 5, 218, 0.527), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        .glass-3d:hover .glare {
+            opacity: 1;
+        }
+
+        .card-inner {
+            position: relative;
+            z-index: 2;
+            transform: translateZ(20px);
+        }
+
+        .neon-text-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #7bffb5 40%, #ff00bb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pulse-dot {
+            width: 8px; height: 8px;
+            background: #ff06ff73;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ea00ff;
+            animation: pulseAnim 2s infinite;
+            display: inline-block;
+        }
+        @keyframes pulseAnim {
+            0%, 100% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 18px #d006da; }
+        }
+
+        /* Плавне погойдування для спливаючих іконок у б'юті-слайдері */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes floatDelayed {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(7px); }
+        }
+        .float-badge-1 { animation: floatSlow 3.5s ease-in-out infinite; }
+        .float-badge-2 { animation: floatDelayed 4s ease-in-out infinite; }
+
+        /* Повзунок ДО / ПІСЛЯ */
+        .ba-slider {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 24px;
+            overflow: hidden;
+            user-select: none;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+        }
+        .ba-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .ba-before {
+            width: 45%;
+            overflow: hidden;
+            z-index: 2;
+            border-right: 3px solid #C5A059;
+        }
+        .ba-handle {
+            position: absolute;
+            top: 50%; left: 45%;
+            width: 48px; height: 48px;
+            margin-left: -24px;
+            margin-top: -24px;
+            background: #1F1A17;
+            border: 2px solid #C5A059;
+            border-radius: 50%;
+            z-index: 3;
+            display: flex; align-items: center; justify-content: center;
+            color: #F5EBE1;
+            font-family: monospace;
+            font-weight: bold;
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.7);
+            pointer-events: none;
+        }
+        .ba-range {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: ew-resize; z-index: 4;
+        }
+
+        /* СПЛИВАЮЧІ МОДАЛЬНІ ВІКНА (ФІКСОВАНІ ПО ЦЕНТРУ ЕКРАНА!) */
+        .cyber-modal {
+            position: fixed !important;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 3, 5, 0.88);
+            backdrop-filter: blur(16px);
+            z-index: 9999 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .cyber-modal.active {
+            display: flex !important;
+        }
+
+        /* Сенсорні повзунки для 3D-калькулятора */
+   /* УЛЬТРАПРОЗОРИЙ СКЛЯНИЙ КАЛЬКУЛЯТОР (Deep Smoke Frosted Glass) */
+        .ultra-glass-card {
+            background: rgba(208, 15, 192, 0.89); /* Напівпрозорий темний фон, видно сайт під низом */
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(231, 14, 213, 0.963); /* Тонкий ледь помітний світловий контур */
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(241, 10, 133, 0.921);
+        }
+
+        /* Повзунки з нейтральним стильним заповненням */
+        .ultra-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 50%, rgba(255, 255, 255, 0.1) 50%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            outline: none;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        .ultra-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 18px;
+            border-radius: 6px;
+            background: #f07dd0;
+            border: 2px solid #050706;
+            box-shadow: 0 0 15px rgba(243, 5, 163, 0.6);
+            cursor: grab;
+            transition: transform 0.15s ease;
+        }
+        .ultra-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        /* Роботік, що вилітає зверху збоку в калькуляторі */
+ /* ЖИВИЙ КІБЕР-РОБОТ (Блакитно-бірюзовий голографічний стиль) */
+        .flying-calc-bot {
+            position: absolute;
+            top: 14px;
+            right: 52px;
+            z-index: 60;
+            max-width: 310px;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.85);
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .flying-calc-bot.bot-fly-in {
+            opacity: 1;
+            transform: translateY(0px) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Стиль віконця роботика у калькуляторі */
+        .calc-bot-card {
+            background: linear-gradient(135deg, rgba(10, 22, 28, 0.92) 0%, rgba(239, 4, 247, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 229, 255, 0.45);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.85), 0 0 30px rgba(241, 4, 119, 0.2);
+        }
+
+        /* Кутовий віджет роботика */
+        .cyber-bot-widget {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .bot-speech-bubble {
+            pointer-events: auto;
+            position: relative;
+            max-width: 240px;
+            background: linear-gradient(135deg, rgba(10, 22, 28, 0.95) 0%, rgba(4, 9, 13, 0.98) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            border-radius: 18px 18px 4px 18px;
+            padding: 12px 15px;
+            margin-bottom: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 229, 255, 0.15);
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .bot-speech-bubble.hidden-bubble {
+            opacity: 0;
+            transform: scale(0.8) translateY(10px);
+            pointer-events: none;
+        }
+        .bubble-close {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-family: monospace;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .bubble-close:hover {
+            color: #00e5ff;
+        }
+
+        /* Тіло живого роботика */
+        .robo-avatar {
+            pointer-events: auto;
+            position: relative;
+            width: 68px;
+            height: 68px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: roboFloat 3.2s ease-in-out infinite;
+        }
+        .robo-antenna {
+            width: 3px;
+            height: 9px;
+            background: linear-gradient(180deg, #00e5ff, #fff);
+            position: relative;
+            box-shadow: 0 0 10px #00e5ff;
+        }
+        .robo-antenna::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -2.5px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #00e5ff;
+            box-shadow: 0 0 14px #00e5ff, 0 0 4px #fff;
+            animation: pulseCyan 2s infinite;
+        }
+        .robo-head {
+            width: 56px; height: 44px;
+            background: linear-gradient(135deg, #10242e 0%, #050d12 100%);
+            border: 2px solid rgba(0, 229, 255, 0.7);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9), 0 0 25px rgba(0, 229, 255, 0.25), inset 0 2px 5px rgba(255,255,255,0.25);
+        }
+        .robo-screen {
+            width: 42px; height: 26px;
+            background: #020508;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            display: flex; align-items: center; justify-content: space-evenly;
+            box-shadow: inset 0 0 8px rgba(0,229,255,0.3);
+        }
+        .robo-eye {
+            width: 7px; height: 11px;
+            background: #00e5ff;
+            border-radius: 50px;
+            box-shadow: 0 0 10px #ff00fb, 0 0 3px #fff;
+            animation: roboBlink 4s infinite;
+        }
+        .robo-ring {
+            width: 34px; height: 5px;
+            border-radius: 50%;
+            background: rgba(0, 229, 255, 0.45);
+            margin-top: 5px;
+            filter: blur(2px);
+        }
+        .robo-badge {
+            position: absolute;
+            top: 2px; right: 2px;
+            width: 19px; height: 19px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00e5ff, #c200cc);
+            color: #03070a;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 10px rgba(0,229,255,0.6);
+        }
+
+        @keyframes roboFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        @keyframes roboBlink {
+            0%, 46%, 50%, 96%, 100% { transform: scaleY(1); }
+            48%, 98% { transform: scaleY(0.1); }
+        }
+        @keyframes pulseCyan {
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 10px #00e5ff; }
+            50% { opacity: 1; box-shadow: 0 0 20px #00e5ff, 0 0 6px #fff; }
+        }
+
+        /* Контейнер роботика в правому нижньому кутку сайту */
+        .cyber-bot-widget {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .bot-speech-bubble {
+            pointer-events: auto;
+            position: relative;
+            max-width: 240px;
+            background: linear-gradient(135deg, rgba(16, 26, 21, 0.95) 0%, rgba(46, 1, 36, 0.98) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 0, 157, 0.5);
+            border-radius: 18px 18px 4px 18px;
+            padding: 12px 15px;
+            margin-bottom: 14px;
+            box-shadow: 0 15px 35px rgba(185, 1, 118, 0.8), 0 0 25px rgba(5, 135, 31, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .bot-speech-bubble.hidden-bubble {
+            opacity: 0;
+            transform: scale(0.8) translateY(10px);
+            pointer-events: none;
+        }
+        .bubble-close {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-family: monospace;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .robo-avatar {
+            pointer-events: auto;
+            position: relative;
+            width: 68px;
+            height: 68px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: roboFloat 3.2s ease-in-out infinite;
+        }
+        .robo-antenna {
+            width: 3px;
+            height: 9px;
+            background: #10b981;
+            position: relative;
+            box-shadow: 0 0 8px #10b981;
+        }
+        .robo-antenna::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -2.5px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 12px #10b981;
+        }
+        .robo-head {
+            width: 54px; height: 42px;
+            background: linear-gradient(135deg, #16261e 0%, #070b09 100%);
+            border: 2px solid #73d7a0;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(243, 16, 209, 0.9), 0 0 20px rgba(0,255,115,0.35);
+        }
+        .robo-screen {
+            width: 40px; height: 24px;
+            background: #030504;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 0, 212, 0.3);
+            display: flex; align-items: center; justify-content: space-evenly;
+        }
+        .robo-eye {
+            width: 8px; height: 11px;
+            background: #3d8cf3;
+            border-radius: 50px;
+            box-shadow: 0 0 10px #ff00ff;
+            animation: roboBlink 4s infinite;
+        }
+        .robo-ring {
+            width: 34px; height: 5px;
+            border-radius: 50%;
+            background: rgba(0, 255, 115, 0.4);
+            margin-top: 5px;
+            filter: blur(2px);
+        }
+        .robo-badge {
+            position: absolute;
+            top: 2px; right: 2px;
+            width: 19px; height: 19px;
+            border-radius: 50%;
+            background: #ff00ea;
+            color: #050706;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+        }
+        @keyframes roboFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        @keyframes roboBlink {
+            0%, 46%, 50%, 96%, 100% { transform: scaleY(1); }
+            48%, 98% { transform: scaleY(0.1); }
+        }
+    </style>
+</head>
+<body class="cyber-grid selection:bg-neon selection:text-obsidian">
+
+    <div class="fixed top-[-15vh] left-1/2 -translate-x-1/2 w-[65vw] h-[45vw] bg-[radial-gradient(circle,rgba(0,255,115,0.08)_0%,transparent_70%)] pointer-events-none z-0"></div>
+
+    <!-- 1. HEADER -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-obsidian/80 backdrop-blur-xl border-b border-neon/15 px-6 lg:px-16 py-4 flex items-center justify-between">
+        <a href="#" class="flex items-center space-x-3 group">
+            <div class="w-9 h-9 rounded-lg bg-neon/10 border border-neon/50 flex items-center justify-center text-neon font-mono font-bold group-hover:bg-neon group-hover:text-obsidian transition-all shadow-[0_0_15px_rgba(0,255,115,0.3)]">
+                Y
+            </div>
+            <span class="font-cinzel text-xl font-extrabold tracking-wider text-white">YUKS</span>
+        </a>
+
+        <nav class="hidden md:flex items-center space-x-8 text-xs font-mono uppercase tracking-wider text-slate-400">
+            <a href="#apps" class="hover:text-neon transition-colors">[01. 3D-Програми]</a>
+            <a href="#transformation" class="hover:text-neon transition-colors">[02. До / Після]</a>
+            <a href="#packages" class="hover:text-neon transition-colors">[03. Прайс & Пакети]</a>
+        </nav>
+
+       <a href="https://www.instagram.com/_____ux______?psln=MXB6eWs3aXh3NDkwbA%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-lg bg-neon text-obsidian font-mono font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(0,255,115,0.4)] hover:scale-105 transition-all inline-flex items-center gap-2">
+            <!-- Стильна іконка Instagram -->
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            <span>Мій Instagram</span>
+        </a>
+    </header>
+
+    <!-- 2. HERO SECTION -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-16 z-10">
+        <div class="glass-3d tilt-card px-5 py-2 rounded-full mb-8 cursor-pointer" onclick="openAppModal('modal-calc')">
+            <div class="glare"></div>
+            <div class="card-inner flex items-center space-x-2 text-xs font-mono text-neon">
+                <span class="pulse-dot"></span>
+                <span>NEXT-GEN WEB ARCHITECTURE</span>
+            </div>
+        </div>
+
+        <h1 class="font-cinzel text-3xl sm:text-5xl lg:text-6xl font-extrabold max-w-5xl leading-[1.18] tracking-tight mb-6">
+            Сайти та 3D-програми, які <span class="neon-text-gradient">заробляють гроші</span>, а не висять вантажем
+        </h1>
+
+        <p class="text-slate-400 text-base sm:text-lg max-w-3xl font-normal leading-relaxed mb-10">
+            Я не пишу сухий код за ТЗ. Я створюю інтерактивні сайти на чистому коді, вбудовую розумні міні-програмки, замінюю хаос на продаючий візуал і підключаю прямі заявки у ваш Telegram.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-5 mb-16">
+            <a href="#apps" class="px-8 py-4 rounded-xl bg-neon text-obsidian font-mono font-bold text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_30px_rgba(0,255,115,0.4)] hover:scale-105 transition-all">
+                🎮 Поклацати 
+            </a>
+            <a href="#transformation" class="px-8 py-4 rounded-xl glass-3d tilt-card text-white font-mono font-bold text-xs sm:text-sm uppercase tracking-wider hover:text-neon">
+                <span>Подивитися До / Після</span>
+            </a>
+        </div>
+
+        <!-- Інтерактивні плашки переваг -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full text-left">
+            <div onclick="openAppModal('modal-site')" class="glass-3d tilt-card rounded-2xl p-6 cursor-pointer group">
+                <div class="glare"></div>
+                <div class="card-inner">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-2xl">🎯</span>
+                        <span class="font-mono text-[11px] text-neon border border-neon/30 px-2 py-0.5 rounded bg-neon/10 group-hover:bg-neon group-hover:text-obsidian transition-colors"-></span>
+                    </div>
+                        <h4 class="font-bold text-white text-base mb-1">Кожна деталь прямо в ціль</h4>
+                    <p class="text-xs text-slate-400">Живі фото та зрозумілі офери замість незрозумілих знаків та сірих полотен тексту.</p>
+                </div>
+            </div>
+
+            <div onclick="openAppModal('modal-calc')" class="glass-3d tilt-card rounded-2xl p-6 cursor-pointer group">
+                <div class="glare"></div>
+                <div class="card-inner">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-2xl">⚡</span>
+                        <span class="font-mono text-[11px] text-neon border border-neon/30 px-2 py-0.5 rounded bg-neon/10 group-hover:bg-neon group-hover:text-obsidian transition-colors">Клікни для перевірки ➔</span>
+                    </div>
+                    <h4 class="font-bold text-white text-base mb-1">Швидкість та чистий код</h4>
+                    <p class="text-xs text-slate-400">0 грн абонплати конструкторам. Миттєве завантаження та власні інтерактивні апки.</p>
+                </div>
+            </div>
+
+            <div onclick="openAppModal('modal-bot')" class="glass-3d tilt-card rounded-2xl p-6 cursor-pointer group">
+                <div class="glare"></div>
+                <div class="card-inner">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-2xl">🤖</span>
+                        <span class="font-mono text-[11px] text-neon border border-neon/30 px-2 py-0.5 rounded bg-neon/10 group-hover:bg-neon group-hover:text-obsidian transition-colors">Клаць ➔</span>
+                    </div>
+                    <h4 class="font-bold text-white text-base mb-1">Мій Telegram-ботик</h4>
+                    <p class="text-xs text-slate-400">Заявки клієнтів прилітають у ваш телефон за 0.14 секунди прямо з сайту.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. ВІРТУАЛЬНІ 3D-ІКОНКИ ТА МІНІ-АПКИ -->
+    <section id="apps" class="py-24 px-6 lg:px-16 relative z-10 border-t border-white/5 bg-surface/40">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="font-mono text-xs text-neon uppercase tracking-widest mb-2"> INTERACTIVE 3D APP MODULES</div>
+                <h2 class="font-cinzel text-2xl sm:text-4xl font-extrabold mb-4 tracking-tight">Програми, сайти та боти</h2>
+                <p class="text-slate-400 text-sm">Наведіть курсор, щоб відчути 3D-об'єм, та <b>натисніть на будь-яку картку</b>, щоб відкрити робочу програму прямо зараз.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- АПКА 1: 3D Програма-Калькулятор -->
+                <div onclick="openAppModal('modal-calc')" class="glass-3d tilt-card rounded-3xl p-6 cursor-pointer group flex flex-col justify-between">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="w-full h-40 rounded-2xl bg-obsidian border border-neon/40 p-4 mb-6 relative overflow-hidden flex flex-col justify-between shadow-[inset_0_0_20px_rgba(0,255,115,0.1)]">
+                            <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 border-b border-white/10 pb-2">
+                                <span class="text-neon flex items-center gap-1.5"><span class="pulse-dot"></span> APP_RUNNING</span>
+                                <span>v3.0</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-xs font-mono text-white">🎛️ ВАШ ДОДАТОК: 3D Калькулятор</div>
+                                <div class="h-2 w-3/4 bg-neon/20 rounded-full overflow-hidden">
+                                    <div class="h-full bg-neon w-3/5"></div>
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400">Рухай повзунки — змінюється ціна...</div>
+                            </div>
+                            <div class="absolute bottom-2 right-3 text-[10px] font-mono text-neon opacity-80 group-hover:opacity-100">
+                                [ Відкрити калькулятор ]
+                            </div>
+                        </div>
+
+                        <div class="font-mono text-xs text-slate-400 mb-1"></div>
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">3D Програма-Калькулятор</h3>
+                        <p class="text-slate-400 text-sm font-normal mb-6">
+                            Інтерактивний калькулятор з повзунками, де клієнти самі додають послуги та бачать розрахунок ціни.
+                        </p>
+                    </div>
+                    <div class="card-inner pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-neon">
+                        <span>Запустити калькулятор</span>
+                        <span class="text-lg group-hover:translate-x-1 transition-transform">➔</span>
+                    </div>
+                </div>
+
+             
+                 <!-- АПКА 2: Google Maps & Local Ads (Працює ідеально по кліку) -->
+                <div onclick="openAppModal('modal-maps')" class="glass-3d tilt-card rounded-3xl p-6 cursor-pointer group flex flex-col justify-between">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="w-full h-40 rounded-2xl bg-obsidian border border-neon/40 p-4 mb-6 relative overflow-hidden flex flex-col justify-between shadow-[inset_0_0_20px_rgba(0,255,115,0.1)]">
+                            <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 border-b border-white/10 pb-2">
+                                <span class="text-neon flex items-center gap-1.5"><span class="pulse-dot"></span> LOCAL_BOOSTER</span>
+                                <span class="text-amber-400">★ 5.0 Top-1</span>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="text-xs font-mono text-white">📍 Google Maps & Local Ads</div>
+                                <div class="flex items-center gap-2 text-[11px] font-mono text-neon">
+                                    <span>★★★★★</span> <span class="text-slate-300">(142 відгуки у Топ-1)</span>
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400">Автоматичне залучення клієнтів з гео-пошуку</div>
+                            </div>
+                            <div class="absolute bottom-2 right-3 text-[10px] font-mono text-neon opacity-80 group-hover:opacity-100">
+                                [ Натисніть для відкриття ]
+                            </div>
+                        </div>
+
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">Google Maps & Local Ads</h3>
+                        <p class="text-slate-400 text-sm font-normal mb-6">
+                            Виведення вашого бізнесу на перші позиції в картах Google та налаштування локальної реклами, щоб клієнти знаходили вас першими.
+                        </p>
+                    </div>
+                    <div class="card-inner pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-neon">
+                        <span>Налаштувати гео-пошук</span>
+                        <span class="text-lg group-hover:translate-x-1 transition-transform">➔</span>
+                    </div>
+                </div>
+                <!-- АПКА 3: Живий Telegram Бот -->
+                <div onclick="openAppModal('modal-bot')" class="glass-3d tilt-card rounded-3xl p-6 cursor-pointer group flex flex-col justify-between">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="w-full h-40 rounded-2xl bg-obsidian border border-neon/40 p-4 mb-6 relative overflow-hidden flex flex-col justify-between shadow-[inset_0_0_20px_rgba(0,255,115,0.1)]">
+                            <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 border-b border-white/10 pb-2">
+                                <span class="text-neon flex items-center gap-1.5"><span class="pulse-dot"></span> BOT_API</span>
+                                <span class="text-emerald-400">Online</span>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="bg-surface p-2 rounded-lg border border-white/10 text-[10px] font-mono text-slate-300">
+                                    🤖 <b>Бот:</b> Готовий приймати замовлення!
+                                </div>
+                                <div class="bg-neon/20 p-1.5 rounded-lg text-[9px] font-mono text-neon text-right">
+                                    ✓ Заявка летить власнику за 0.14с
+                                </div>
+                            </div>
+                            <div class="absolute bottom-2 right-3 text-[10px] font-mono text-neon opacity-80 group-hover:opacity-100">
+                                [ Тестувати бота ]
+                            </div>
+                        </div>
+
+                        <div class="font-mono text-xs text-slate-400 mb-1">MODULE // 03</div>
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">Telegram-Бот Автоматизація</h3>
+                        <p class="text-slate-400 text-sm font-normal mb-6">
+                            Миттєве сповіщення про нові ліди та прямий перехід клієнтів у ваш Telegram-бот.
+                        </p>
+                    </div>
+                    <div class="card-inner pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-neon">
+                        <span>Протестувати бота</span>
+                        <span class="text-lg group-hover:translate-x-1 transition-transform">➔</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ТРАНСФОРМАЦІЯ БІЗНЕС-САЙТІВ (СІРИЙ ХАОС 👉 СВІТЛИЙ LUXURY Б'ЮТІ-САЙТ) -->
+    <section id="transformation" class="py-24 px-6 lg:px-16 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <div class="font-mono text-xs text-neon uppercase tracking-widest mb-2">ADAPTIVE LUXURY DESIGN</div>
+                <h2 class="font-cinzel text-2xl sm:text-4xl font-extrabold mb-4 tracking-tight">До і Після: Підлаштовую стиль під нішу</h2>
+                <p class="text-slate-400 text-sm">Потягніть повзунок. Зліва — похмурий, незрозумілий старий сайт. Справа — те, що обожнюють б'юті-салони та преміум-бренди: <b>світлий шовковий беж, біла чистота, золоті акценти та живі спливаючі іконки</b>.</p>
+            </div>
+
+            <div class="ba-slider" id="baSlider">
+                <!-- ПРАВА СТОРОНА (ПІСЛЯ - Дорогий біло-бежевий сайт із золотом) -->
+                <div class="ba-layer bg-gradient-to-br from-[#FAF8F5] via-[#F3EFEA] to-[#EAE3DC] text-[#2C2623] p-6 sm:p-12 flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-[#D8CBB8]/60 pb-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-3 h-3 rounded-full bg-[#C5A059] shadow-[0_0_10px_#C5A059]"></span>
+                            <span class="font-cinzel font-bold text-[#1F1A17] tracking-wider text-xs sm:text-sm">LUMIÈRE .BEAUTY LOUNGE</span>
+                        </div>
+                        <span class="px-3.5 py-1 rounded-full bg-[#1F1A17] text-[#F5EBE1] font-mono text-[11px] font-semibold shadow-md">
+                            ✨ ПІСЛЯ: WHITE & GOLD LUXURY
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center my-auto py-4">
+                        <div class="space-y-4 text-left">
+                            <div class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#9C7A3C] bg-white/80 backdrop-blur px-3.5 py-1.5 rounded-full border border-[#E5DEC9] shadow-sm">
+                                <span>🕊️ Естетика • Стерильність • Комфорт</span>
+                            </div>
+                            <h3 class="font-cinzel text-xl sm:text-3xl font-extrabold text-[#1F1A17] leading-tight">
+                                Бездоганний манікюр та догляд у атмосфері розкоші
+                            </h3>
+                            <p class="text-[#6E6259] text-xs sm:text-sm leading-relaxed">
+                                Світлий, чистий дизайн, що викликає миттєву довіру. Клієнтка бачить живі роботи, ціну та записується у Telegram за один дотик.
+                            </p>
+                            <div class="flex flex-wrap items-center gap-3 pt-2">
+                                <button onclick="openAppModal('modal-bot')" class="px-6 py-3 bg-gradient-to-r from-[#C5A059] to-[#AA8239] text-white font-bold text-xs rounded-full shadow-[0_10px_25px_rgba(197,160,89,0.4)] hover:scale-105 transition-transform">
+                                    ✨ Записатися онлайн (1 клік)
+                                </button>
+                                <span class="px-4 py-2.5 bg-white/90 border border-[#E2D9CC] rounded-full text-xs text-[#2C2623] font-bold shadow-sm">
+                                    Прайс: 250 PLN
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-full h-56 sm:h-64 rounded-2xl overflow-hidden border-4 border-white shadow-[0_20px_50px_rgba(44,38,35,0.15)] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80');"></div>
+
+                            <div class="float-badge-1 absolute -top-4 -left-2 sm:-left-6 bg-white/95 backdrop-blur-md border border-[#E8DFD1] px-4 py-2.5 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.1)] flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-[#FDF8EE] border border-[#F0E2C4] flex items-center justify-center text-base">👑</span>
+                                <div class="text-left">
+                                    <div class="text-[10px] text-[#8C7D70] font-semibold uppercase">Google Maps</div>
+                                    <div class="text-xs font-extrabold text-[#1F1A17]">★ 5.0 (240+ відгуків)</div>
+                                </div>
+                            </div>
+
+                            <div class="float-badge-2 absolute -bottom-4 -right-2 sm:-right-4 bg-white/95 backdrop-blur-md border border-[#E8DFD1] px-4 py-2.5 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.1)] flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-[#FDF8EE] border border-[#F0E2C4] flex items-center justify-center text-base">⏱️</span>
+                                <div class="text-left">
+                                    <div class="text-[10px] text-[#8C7D70] font-semibold uppercase">Швидкість & Сервіс</div>
+                                    <div class="text-xs font-extrabold text-[#9C7A3C]">Готово за 45 хв • Стерильно</div>
+                                </div>
+                            </div>
+
+                            <div class="float-badge-1 absolute top-4 right-3 bg-[#1F1A17] text-[#F5EBE1] px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-lg flex items-center gap-1.5">
+                                <span class="text-[#C5A059]">●</span> Вільні вікна сьогодні
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs font-semibold text-[#7A6B5D] flex justify-between border-t border-[#D8CBB8]/60 pt-3">
+                        <span>✓ Елегантний біло-золотий дизайн продає дорогий чек</span>
+                        <span>✓ Запис клієнток зріс на +240%</span>
+                    </div>
+                </div>
+
+                <!-- ЛІВА СТОРОНА (ДО - Сірий хаос) -->
+                <div class="ba-layer ba-before bg-[#26282a]" id="baBefore">
+                    <div class="w-[100vw] max-w-[1152px] h-full p-6 sm:p-12 flex flex-col justify-between text-gray-400 font-mono">
+                        <div class="flex justify-between items-center border-b border-gray-600 pb-4">
+                            <span class="text-gray-400 text-xs sm:text-sm">salon_staryj_2009.html [Помилка шрифтів]</span>
+                            <span class="px-3 py-1 rounded bg-gray-700 text-gray-300 text-xs">ДО: СІРИЙ ХАОС</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center my-auto py-4">
+                            <div class="space-y-3 text-left">
+                                <div class="text-xs text-gray-500">??? POSLUGI #404 ???</div>
+                                <h3 class="text-xl sm:text-2xl font-bold text-gray-300">Перукарня та нігтьовий сервіс ФОП</h3>
+                                <p class="text-xs text-gray-400 leading-relaxed">
+                                    Надаємо послуги манікюру, педикюру та інше. Дзвоніть на стаціонарний телефон у робочий час або пишіть на пошту. Прайс у таблиці нижче не завантажився...
+                                </p>
+                                <div class="flex gap-2 pt-2">
+                                    <div class="px-4 py-2 bg-gray-600 text-gray-300 text-xs border border-gray-500">Кнопка не активна [Error]</div>
+                                    <div class="px-4 py-2 bg-gray-700 text-gray-400 text-xs">?? Як записатися ??</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="h-48 bg-gray-700 border-2 border-dashed border-gray-500 flex flex-col items-center justify-center p-4 text-center">
+                                    <span class="text-2xl mb-2">🖼️❌</span>
+                                    <span class="text-[11px] text-gray-400">photo_1.jpg не знайдено (Замість робіт — биті знаки)</span>
+                                </div>
+                                <div class="h-48 bg-gray-700 border-2 border-dashed border-gray-500 flex flex-col items-center justify-center p-4 text-center">
+                                    <span class="text-2xl mb-2">❓</span>
+                                    <span class="text-[11px] text-gray-400">Немає ні цін, ні атмосфери салону</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-gray-500 flex justify-between border-t border-gray-600 pt-3">
+                            <span>✕ Клієнтка боїться йти в такий салон і закриває вкладку</span>
+                            <span>✕ Немає онлайн-запису</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ba-handle" id="baHandle">⇄</div>
+                <input type="range" min="0" max="100" value="45" class="ba-range" id="baRange">
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. ПАКЕТИ ТА ПРОЗОРИЙ ПРАЙС -->
+    <section id="packages" class="py-24 px-6 lg:px-16 relative z-10 border-t border-white/5 bg-surface/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="font-mono text-xs text-neon uppercase tracking-widest mb-2">WoW пакети</div>
+                <h2 class="font-cinzel text-2xl sm:text-4xl font-extrabold mb-4 tracking-tight">Комплексні пакети рішень</h2>
+                <p class="text-slate-400 text-sm">1 клієнт = 1 спринт до релізу. Замовляти комплексом вигідніше, ніж окремо.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-3d tilt-card rounded-3xl p-8 flex flex-col justify-between">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="font-mono text-xs text-slate-400 mb-2"></div>
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">Сайт & Telegram</h3>
+                        <div class="text-3xl font-mono font-extrabold text-neon mb-4">$450</div>
+                        <p class="text-slate-400 text-xs mb-6">Швидке перетворення старого незрозумілого сайту або презентації на стильний 3D-продукт.</p>
+                        <ul class="space-y-3 text-xs text-slate-300 font-mono mb-8">
+                            <li>✓ Очищення візуалу (До / Після)</li>
+                            <li>✓ Інтерактивний дизайн</li>
+                            <li>✓ Адаптація під iPhone та Android</li>
+                            <li>✓ Пряма кнопка зв'язку в Telegram</li>
+                        </ul>
+                    </div>
+                    <div class="card-inner">
+                        <button onclick="selectPackageAndOpenBot('Редизайн & Презентація ($450)')" class="w-full py-3.5 rounded-xl bg-white/5 border border-neon/40 text-neon font-mono text-xs font-bold uppercase tracking-wider hover:bg-neon hover:text-obsidian transition-all">
+                            Замовити пакет ➔
+                        </button>
+                    </div>
+                </div> 
+
+                <div class="glass-3d tilt-card rounded-3xl p-8 flex flex-col justify-between border-2 border-neon shadow-[0_0_40px_rgba(0,255,115,0.18)] scale-105 z-10">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="inline-block px-3 py-1 rounded-full bg-neon text-obsidian font-mono text-[10px] font-bold uppercase tracking-widest mb-3">
+                            ★ Найкращий вибір
+                        </div>
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">Синергія (Сайт + Бот + Апка)</h3>
+                        <div class="text-3xl font-mono font-extrabold text-neon mb-4">$1,150 <span class="text-xs text-slate-400 line-through font-normal">$1,450</span></div>
+                        <p class="text-slate-400 text-xs mb-6">Повний цикл упаковки бізнесу з розумною програмкою-калькулятором та Telegram-ботом.</p>
+                        <ul class="space-y-3 text-xs text-slate-200 font-mono mb-8">
+                            <li>✓ Ексклюзивний сайт на чистому коді</li>
+                            <li>✓ Вбудована міні-програмка / калькулятор</li>
+                            <li>✓ Автоматичний Telegram-бот для заявок</li>
+                            <li>✓ Оптимізація Google Maps (Топ-1)</li>
+                        </ul>
+                    </div>
+                    <div class="card-inner">
+                        <button onclick="selectPackageAndOpenBot('Синергія: Сайт + Бот + Апка ($1,150)')" class="w-full py-3.5 rounded-xl bg-neon text-obsidian font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_25px_rgba(0,255,115,0.4)] hover:scale-105 transition-all">
+                            Запустити Синергію ➔
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-3d tilt-card rounded-3xl p-8 flex flex-col justify-between">
+                    <div class="glare"></div>
+                    <div class="card-inner">
+                        <div class="font-mono text-xs text-slate-400 mb-2"></div>
+                        <h3 class="font-cinzel text-xl font-bold text-white mb-2">Повна Архітектура</h3>
+                        <div class="text-3xl font-mono font-extrabold text-neon mb-4">$1,800+</div>
+                        <p class="text-slate-400 text-xs mb-6">Індивідуальна розробка веб-додатків для команди, клієнтських кабінетів та автоматизації.</p>
+                        <ul class="space-y-3 text-xs text-slate-300 font-mono mb-8">
+                            <li>✓ Кастомні мобільні веб-додатки (PWA)</li>
+                            <li>✓ Складні 3D-інтерфейси та бази даних</li>
+                            <li>✓ Повна інтеграція з CRM і Telegram API</li>
+                            <li>✓ Особистий супровід та розвиток</li>
+                        </ul>
+                    </div>
+                    <div class="card-inner">
+                        <button onclick="selectPackageAndOpenBot('Повна Архітектура ($1,800+)')" class="w-full py-3.5 rounded-xl bg-white/5 border border-neon/40 text-neon font-mono text-xs font-bold uppercase tracking-wider hover:bg-neon hover:text-obsidian transition-all">
+                            Обговорити проєкт ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ФУТЕР -->
+    <footer class="py-12 px-6 border-t border-white/10 text-center font-mono text-xs text-slate-500 relative z-10">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span class="text-white font-cinzel font-bold tracking-wider text-sm">YUKS . 3D WEB CORE</span>
+            <span>© 2026 Усі права захищені.</span>
+            <a href="https://t.me/UX_Web_assist_bot" target="_blank" class="text-neon hover:underline">✈️ Прямий Telegram-Бот</a>
+        </div>
+    </footer>
+
+
+    <!-- ================================================================= -->
+    <!-- СПЛИВАЮЧІ 3D-ВІКНА (ПО ЦЕНТРУ ЕКРАНА!)                            -->
+    <!-- ================================================================= -->
+
+  
+         <!-- МОДАЛКА 1: РОБОЧА ПРОГРАМКА-КАЛЬКУЛЯТОР (НЕОНОВИЙ СТИЛЬ) -->
+    <div id="modal-calc" class="cyber-modal" onclick="closeModalOutside(event, 'modal-calc')">
+        <div class="glass-3d rounded-3xl max-w-xl w-full p-6 sm:p-7 border border-neon relative max-h-[90vh] overflow-y-auto">
+            
+            <!-- Роботік, що вилітає зверху збоку -->
+<!-- РОБОТІК У КАЛЬКУЛЯТОРІ (Блакитно-бірюзовий хайтек) -->
+    <div id="flyingCalcBot" class="flying-calc-bot">
+        <div class="calc-bot-card flex items-center gap-3 px-4 py-3 rounded-2xl">
+            <div class="w-9 h-8 rounded-xl bg-[#091b22] border border-[#00e5ff] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(0,229,255,0.5)]">
+                <div class="w-6 h-3.5 rounded bg-obsidian flex items-center justify-evenly px-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#00e5ff] shadow-[0_0_6px_#00e5ff]"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#00e5ff] shadow-[0_0_6px_#00e5ff]"></span>
+                </div>
+            </div>
+            <div class="text-left">
+                <div id="flyingBotText" class="text-[11px] font-medium text-white leading-snug">
+                    О, класно! У турбо-режимі впораємося за 3–4 дні! 🔥
+                </div>
+                <button onclick="sendCalcToBot()" class="mt-0.5 text-[10px] font-mono font-bold text-[#00e5ff] underline hover:text-white">
+                    Перейти в Telegram ➔
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+            <div class="card-inner">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="pulse-dot"></span>
+                        <span class="font-mono text-xs text-neon">YUKS_CALC 3D КАЛЬКУЛЯТОР</span>
+                    </div>
+                    <button onclick="closeAppModal('modal-calc')" class="text-slate-400 hover:text-neon font-mono text-lg">[✕]</button>
+                </div>
+
+                <h3 class="font-cinzel text-lg sm:text-xl font-bold text-white mb-1">Розрахуйте вартість проєкту</h3>
+                <p class="text-xs text-slate-400 mb-4">Обирайте модулі та рухайте повзунки — ціна одразу доплюсовується:</p>
+
+                <!-- 1. Модулі -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs mb-5">
+                    <button type="button" onclick="toggleCalcModule(this, 'Супер! 3D-Сайт — це основа продажів 💻')" data-price="450" data-name="Сайт" class="mod-pill active-mod p-3 rounded-2xl border border-neon bg-neon/15 text-white flex flex-col items-center gap-1 transition-all">
+                        <span class="text-xl">💻</span>
+                        <span class="font-bold">Сайт</span>
+                        <span class="price-span text-[11px] text-neon font-extrabold">+$450</span>
+                    </button>
+
+                    <button type="button" onclick="toggleCalcModule(this, 'Круто! Програмка затримає клієнтів на сайті 🎛️')" data-price="600" data-name="Програмка" class="mod-pill active-mod p-3 rounded-2xl border border-neon bg-neon/15 text-white flex flex-col items-center gap-1 transition-all">
+                        <span class="text-xl">🎛️</span>
+                        <span class="font-bold">Програмка</span>
+                        <span class="price-span text-[11px] text-neon font-extrabold">+$600</span>
+                    </button>
+
+                    <button type="button" onclick="toggleCalcModule(this, 'Клас! Заявки летітимуть прямо в Telegram 🤖')" data-price="200" data-name="Telegram-Бот" class="mod-pill active-mod p-3 rounded-2xl border border-neon bg-neon/15 text-white flex flex-col items-center gap-1 transition-all">
+                        <span class="text-xl">🤖</span>
+                        <span class="font-bold">TG-Бот</span>
+                        <span class="price-span text-[11px] text-neon font-extrabold">+$200</span>
+                    </button>
+
+                    <button type="button" onclick="toggleCalcModule(this, 'Топ! Виведемо точку в Топ-1 Google Maps 📍')" data-price="200" data-name="Google Maps" class="mod-pill p-3 rounded-2xl border border-white/15 bg-white/5 text-slate-400 flex flex-col items-center gap-1 transition-all">
+                        <span class="text-xl">📍</span>
+                        <span class="font-bold">Google Maps</span>
+                        <span class="price-span text-[11px] text-slate-400 font-extrabold">+$200</span>
+                    </button>
+                </div>
+
+                <!-- 2. Повзунки -->
+                <div class="space-y-4 bg-obsidian/90 p-4 rounded-2xl border border-white/10 mb-5">
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1.5">
+                            <span class="text-slate-300">📐 Масштаб (кількість блоків):</span>
+                            <span id="scaleLabel" class="text-neon font-bold">5 блоків (+$160)</span>
+                        </div>
+                        <input type="range" id="rangeScale" min="1" max="10" value="5" oninput="recalcApp('scale')" class="ultra-slider w-full">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1.5">
+                            <span class="text-slate-300">✨ Рівень 3D та ефектів:</span>
+                            <span id="designLabel" class="text-neon font-bold">3D Glass + Нахил (+$150)</span>
+                        </div>
+                        <input type="range" id="rangeDesign" min="1" max="3" value="2" oninput="recalcApp('design')" class="ultra-slider w-full">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1.5">
+                            <span class="text-slate-300">⚡ Швидкість запуску:</span>
+                            <span id="speedLabel" class="text-neon font-bold">Оптимальний (~7 днів, +$0)</span>
+                        </div>
+                        <input type="range" id="rangeSpeed" min="1" max="3" value="2" oninput="recalcApp('speed')" class="ultra-slider w-full">
+                    </div>
+                </div>
+
+                <!-- 3. Табло ціни -->
+                <div class="grid grid-cols-3 gap-2.5 mb-4 font-mono text-center">
+                    <div class="p-3 rounded-2xl bg-white/5 border border-white/10">
+                        <div class="text-[10px] text-slate-400 uppercase">Термін</div>
+                        <div id="calcDays" class="text-sm sm:text-base font-bold text-white mt-0.5">7 днів</div>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-white/5 border border-white/10">
+                        <div class="text-[10px] text-slate-400 uppercase">Конверсія</div>
+                        <div id="calcBoost" class="text-sm sm:text-base font-bold text-neon mt-0.5">+210%</div>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-neon/15 border border-neon">
+                        <div class="text-[10px] text-neon uppercase">Сума</div>
+                        <div id="appTotalValue" class="font-cinzel text-lg sm:text-2xl font-extrabold text-neon mt-0.5 tabular-nums">$1,560</div>
+                    </div>
+                </div>
+
+                <button onclick="sendCalcToBot()" class="w-full py-3.5 rounded-2xl bg-neon text-obsidian font-mono font-extrabold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(0,255,115,0.4)] hover:scale-[1.02] transition-transform">
+                    🚀 Оформити цей розрахунок у Telegram ➔
+                </button>
+            </div>
+        </div>
+    </div>
+
+            
+<!-- МОДАЛКА 2: GOOGLE MAPS & LOCAL ADS -->
+ <!-- МОДАЛКА 2: РЕАЛЬНИЙ GOOGLE MAPS ІНТЕГРОВАНИЙ БУСТЕР -->
+    <div id="modal-maps" class="cyber-modal" onclick="closeModalOutside(event, 'modal-maps')">
+        <div class="glass-3d rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-neon relative max-h-[90vh] overflow-y-auto">
+            <div class="card-inner">
+                <!-- Шапка Google Maps -->
+                <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-5">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                        <span class="font-mono text-xs text-neon">GOOGLE_MAPS_API . BUSINESS PROFILE v2.4</span>
+                    </div>
+                    <button onclick="closeAppModal('modal-maps')" class="text-slate-400 hover:text-neon font-mono text-lg">[✕]</button>
+                </div>
+
+                <!-- Імітація картки Google Business Profile -->
+                <div class="bg-obsidian border border-neon/30 rounded-2xl p-5 space-y-4 mb-6 shadow-inner font-mono">
+                    
+                    <!-- Назва точки та статус верифікації -->
+                    <div class="flex items-start justify-between border-b border-white/10 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-neon/15 border border-neon/40 flex items-center justify-center text-xl shrink-0">
+                                📍
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm font-sans">Ваш Заклад / Салон на карті</h4>
+                                <p class="text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                                    <span>✓ Verified Business Profile</span>
+                                </p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-neon/10 text-neon text-[10px] font-bold border border-neon/30">Топ-1 у видачі</span>
+                    </div>
+
+                    <!-- Точний рейтинг як у Google Maps -->
+                    <div class="bg-surface p-3.5 rounded-xl border border-white/10 flex items-center justify-between">
+                        <span class="text-xs text-slate-300">Рейтинг закладу на карті:</span>
+                        <div class="text-right">
+                            <div class="text-amber-400 text-sm tracking-widest">★★★★★</div>
+                            <div class="text-[11px] text-slate-400 font-bold mt-0.5">5.0 <span class="text-slate-500 font-normal">(142 відгуки)</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Додаткові параметри гео-оптимізації -->
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-lg bg-surface border border-white/10 flex justify-between items-center">
+                            <span class="text-slate-400">Локальний пошук (SEO):</span>
+                            <span class="text-neon font-bold">Оптимізовано під «біля мене»</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-surface border border-white/10 flex justify-between items-center">
+                            <span class="text-slate-400">Маршрути та кліки:</span>
+                            <span class="text-white font-bold">+340 за останній місяць</span>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 leading-relaxed pt-1">
+                        Коли клієнт шукає послугу в телефоні, алгоритм Google показує першими заклади з ідеальним рейтингом та активними відгуками. Цей модуль налаштовується в єдиній екосистемі з вашим сайтом!
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="closeAppModal('modal-maps')" class="px-4 py-3 rounded-xl bg-white/5 border border-white/15 font-mono text-xs text-white hover:border-neon">
+                        Закрити
+                    </button>
+                    <button onclick="openAppModal('modal-bot'); closeAppModal('modal-maps');" class="w-full py-3 rounded-xl bg-neon text-obsidian font-mono font-extrabold text-xs uppercase tracking-wider text-center shadow-[0_0_20px_rgba(0,255,115,0.4)] hover:scale-[1.02] transition-transform">
+                        📍 Підняти мій бізнес у Google Maps ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+      
+
+    <!-- МОДАЛКА 3: ЖИВИЙ TELEGRAM-БОТ -->
+    <div id="modal-bot" class="cyber-modal" onclick="closeModalOutside(event, 'modal-bot')">
+        <div class="glass-3d rounded-3xl max-w-lg w-full p-7 border border-neon relative">
+            <div class="card-inner">
+                <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-5">
+                    <div class="flex items-center space-x-2">
+                        <span class="pulse-dot"></span>
+                        <span class="font-mono text-xs text-neon">@YUKS_ORDER_BOT . ЖИВЕ З'ЄДНАННЯ</span>
+                    </div>
+                    <button onclick="closeAppModal('modal-bot')" class="text-slate-400 hover:text-neon font-mono text-lg">[✕]</button>
+                </div>
+
+                <div class="bg-obsidian/90 border border-white/10 rounded-2xl p-4 space-y-3 mb-5 max-h-56 overflow-y-auto font-mono text-xs" id="botChatBox">
+                    <div class="p-3 rounded-xl bg-surface border border-neon/20 text-slate-200">
+                        🤖 <b>YUKS Bot:</b> Привіт! Я автоматичний асистент. Напишіть ваше ім'я або натисніть зелену кнопку нижче, щоб одразу перейти в Telegram!
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <input type="text" id="clientInputName" placeholder="Введіть ваше ім'я або нік у Telegram..." class="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/20 text-white text-xs font-mono focus:outline-none focus:border-neon">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button onclick="simulateBotSend()" class="w-full py-3 rounded-xl bg-white/10 border border-neon/50 text-neon font-mono font-bold text-xs uppercase hover:bg-neon hover:text-obsidian transition-all">
+                            ⚡ Тест відправки тут
+                        </button>
+                        <a id="directBotLink" href="https://t.me/UX_Web_assist_bot" target="_blank" class="w-full py-3 rounded-xl bg-neon text-obsidian font-mono font-bold text-xs uppercase text-center shadow-[0_0_20px_rgba(0,255,115,0.4)] hover:scale-105 transition-all block">
+                            ✈️ Відкрити Telegram-Бот
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЛІТАЮЧИЙ КІБЕР-РОБОТ У КУТКУ САЙТУ -->
+    <div class="cyber-bot-widget">
+        <div class="bot-speech-bubble" id="botBubble" onclick="openAppModal('modal-bot')">
+            <button class="bubble-close" onclick="hideBotBubble(event)">✕</button>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="pulse-dot"></span>
+                <span class="font-mono text-[10px] text-neon uppercase tracking-wider">YUKS AI-Assistant</span>
+            </div>
+            <p id="botBubbleText" class="text-xs text-white leading-snug">
+                Привіт! 👋 Тисни на мене — переведу в Telegram і порахую проєкт за 1 хвилину!
+            </p>
+        </div>
+
+        <div class="robo-avatar" onclick="openAppModal('modal-bot')" title="Відкрити Telegram-бота">
+            <div class="robo-antenna"></div>
+            <div class="robo-head">
+                <div class="robo-screen">
+                    <span class="robo-eye"></span>
+                    <span class="robo-eye"></span>
+                </div>
+            </div>
+            <div class="robo-ring"></div>
+            <div class="robo-badge">1</div>
+        </div>
+    </div>
+
+    <!-- СКРИПТИ -->
+    <script>
+        // 1. 3D НАХИЛ КАРТОК
+        const tiltCards = document.querySelectorAll('.tilt-card');
+        tiltCards.forEach(card => {
+            const glare = card.querySelector('.glare');
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -9;
+                const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 9;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                if (glare) {
+                    glare.style.background = `radial-gradient(circle at ${(x / rect.width) * 100}% ${(y / rect.height) * 100}%, rgba(0, 255, 115, 0.22), transparent 60%)`;
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        });
+
+ // 2. ПОВЗУНОК "ДО І ПІСЛЯ"
+        const baRange = document.getElementById('baRange');
+        const baBefore = document.getElementById('baBefore');
+        const baHandle = document.getElementById('baHandle');
+        baRange.addEventListener('input', (e) => {
+            const pos = e.target.value;
+            baBefore.style.width = pos + '%';
+            baHandle.style.left = pos + '%';
+        });
+        // 3. ВІДКРИТТЯ ТА ЗАКРИТТЯ МОДАЛЬНИХ ВІКОН
+        function openAppModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeAppModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function closeModalOutside(e, id) {
+            if (e.target.id === id) closeAppModal(id);
+        }
+
+        // 4. КАЛЬКУЛЯТОР З ЧІТКИМ ПЛЮСУВАННЯМ ТА ВИЛІТАЮЧИМ РОБОТИКОМ
+        let calcBotTimer = null;
+        function triggerFlyingBot(message) {
+            const botEl = document.getElementById('flyingCalcBot');
+            const textEl = document.getElementById('flyingBotText');
+            if (!botEl || !textEl) return;
+            textEl.textContent = message;
+            botEl.classList.add('bot-fly-in');
+            clearTimeout(calcBotTimer);
+            calcBotTimer = setTimeout(() => {
+                botEl.classList.remove('bot-fly-in');
+            }, 4200);
+        }
+
+        function updateSliderTrack(slider) {
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            const val = parseFloat(slider.value);
+            const pct = ((val - min) / (max - min)) * 100;
+            slider.style.background = `linear-gradient(90deg, #00ff73 0%, #00b359 ${pct}%, rgba(255, 255, 255, 0.1) ${pct}%)`;
+        }
+
+        function toggleCalcModule(btn, msg) {
+            btn.classList.toggle('active-mod');
+            const priceSpan = btn.querySelector('.price-span');
+            if (btn.classList.contains('active-mod')) {
+                btn.className = "mod-pill active-mod p-3 rounded-2xl border border-neon bg-neon/15 text-white flex flex-col items-center gap-1 transition-all";
+                priceSpan.className = "price-span text-[11px] text-neon font-extrabold";
+                if (msg) triggerFlyingBot(msg);
+            } else {
+                btn.className = "mod-pill p-3 rounded-2xl border border-white/15 bg-white/5 text-slate-400 flex flex-col items-center gap-1 transition-all";
+                priceSpan.className = "price-span text-[11px] text-slate-400 font-extrabold";
+            }
+            recalcApp();
+        }
+
+        function recalcApp(changedSource) {
+            const rScale = document.getElementById('rangeScale');
+            const rDesign = document.getElementById('rangeDesign');
+            const rSpeed = document.getElementById('rangeSpeed');
+            [rScale, rDesign, rSpeed].forEach(updateSliderTrack);
+
+            const activeMods = document.querySelectorAll('.mod-pill.active-mod');
+            let baseSum = 0;
+            activeMods.forEach(m => baseSum += parseInt(m.getAttribute('data-price')));
+
+            const scale = parseInt(rScale.value);
+            const design = parseInt(rDesign.value);
+            const speed = parseInt(rSpeed.value);
+
+            const scaleAddon = (scale - 1) * 40;
+            const designAddon = design === 1 ? 0 : (design === 2 ? 150 : 350);
+            const speedAddon = speed === 1 ? -50 : (speed === 2 ? 0 : 400);
+
+            document.getElementById('scaleLabel').textContent = `${scale} блоків (+$${scaleAddon})`;
+            const designNames = [`Базовий (+$0)`, `3D Glass + Нахил (+$150)`, `Кібер-WOW (+$350)`];
+            document.getElementById('designLabel').textContent = designNames[design - 1];
+            const speedNames = [`Спокійний (~14 днів, -$50)`, `Оптимальний (~7 днів, +$0)`, `🔥 Турбо 3-4 дні (+$400)`];
+            document.getElementById('speedLabel').textContent = speedNames[speed - 1];
+
+            if (changedSource === 'speed') {
+                if (speed === 3) triggerFlyingBot("О, класно! У турбо-режимі ми швидко впораємося за 3–4 дні! 🔥");
+                if (speed === 1) triggerFlyingBot("Супер! За спокійний темп дарую приємну знижку -$50 ✨");
+            } else if (changedSource === 'design' && design === 3) {
+                triggerFlyingBot("Вау! Максимальний 3D-рівень — конкуренти будуть у шоці! 🚀");
+            } else if (changedSource === 'scale' && scale >= 8) {
+                triggerFlyingBot("Масштабний проєкт! Усе продумаємо до дрібниць 💎");
+            }
+
+            let total = baseSum + scaleAddon + designAddon + speedAddon;
+            if (activeMods.length === 0 || total < 0) total = 0;
+
+            let days = speed === 1 ? "14 днів" : (speed === 2 ? "7 днів" : "3-4 дні");
+            let boost = activeMods.length === 0 ? 0 : (130 + (activeMods.length * 30) + (design * 25));
+
+            document.getElementById('appTotalValue').textContent = '$' + total.toLocaleString('en-US');
+            document.getElementById('calcDays').textContent = days;
+            document.getElementById('calcBoost').textContent = `+${boost}%`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => recalcApp());
+
+        function sendCalcToBot() {
+            const total = document.getElementById('appTotalValue').textContent;
+            const days = document.getElementById('calcDays').textContent;
+            const mods = Array.from(document.querySelectorAll('.mod-pill.active-mod')).map(m => m.getAttribute('data-name')).join(' + ');
+
+            closeAppModal('modal-calc');
+            openAppModal('modal-bot');
+            const chatBox = document.getElementById('botChatBox');
+            chatBox.innerHTML += `
+                <div class="p-3 rounded-xl bg-neon/20 border border-neon text-white text-right">
+                    🧑 <b>Ви:</b> Розрахував проєкт у 3D-калькуляторі:<br>
+                    Модулі: <b>${mods || 'Індивідуально'}</b><br>
+                    Термін: <b>${days}</b> | Сума: <b>${total}</b>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById('directBotLink').href = `https://t.me/UX_Web_assist_bot`;
+        }
+
+        // 5. СЛАЙДЕРИ КЕЙСІВ
+        const slides = [
+            {
+                badge: "КЕЙС 01 / 03 — Б'ЮТІ ІНДУСТРІЯ",
+                title: "Мережа експрес-манікюру та навчання",
+                text: "Замість складного тексту ми зробили стильний світлий сайт та презентацію, де клієнт бачить переваги за 10 секунд і записується в один клік.",
+                metric: "Результат: +180% заявок у перший місяць після релізу."
+            },
+            {
+                badge: "КЕЙС 02 / 03 — БРЕНД ПРИКРАС & МІНЕРАЛІВ",
+                title: "Ексклюзивний каталог натурального каміння",
+                text: "Інтерактивна вітрина з підбором каменю за енергетикою, живими макро-фото та миттєвим оформленням замовлення через Telegram-бота.",
+                metric: "Результат: Середній чек зріс у 2.2 рази завдяки преміум-подачі."
+            },
+            {
+                badge: "КЕЙС 03 / 03 — ЛОКАЛЬНИЙ БІЗНЕС ТА КАРТИ",
+                title: "Автоматизація виїзної команди та Google Maps",
+                text: "Веб-додаток для працівників із фотофіксацією об'єктів та виведення профілю компанії в Топ-1 локальної видачі Google.",
+                metric: "Результат: Економія 15 годин рутини щотижня для власника."
+            }
+        ];
+        let currentSlide = 0;
+        function changeSlide(dir) {
+            currentSlide = (currentSlide + dir + slides.length) % slides.length;
+            const s = slides[currentSlide];
+            document.getElementById('slideBadge').textContent = s.badge;
+            document.getElementById('slideTitle').textContent = s.title;
+            document.getElementById('slideText').textContent = s.text;
+            document.getElementById('slideMetric').textContent = s.metric;
+        }
+
+        // 6. ТЕСТ БОТА ТА ПАКЕТІВ
+        function selectPackageAndOpenBot(packName) {
+            openAppModal('modal-bot');
+            const chatBox = document.getElementById('botChatBox');
+            chatBox.innerHTML += `
+                <div class="p-3 rounded-xl bg-neon/20 border border-neon text-white text-right">
+                    🧑 <b>Ви:</b> Мене цікавить пакет «${packName}»
+                </div>
+            `;
+            document.getElementById('directBotLink').href = `https://t.me/UX_Web_assist_bot?start=${encodeURIComponent(packName)}`;
+        }
+
+        function simulateBotSend() {
+            const input = document.getElementById('clientInputName');
+            const name = input.value.trim() || 'Клієнт';
+            const chatBox = document.getElementById('botChatBox');
+            chatBox.innerHTML += `
+                <div class="p-3 rounded-xl bg-neon/20 border border-neon text-white text-right">
+                    🧑 <b>${name}:</b> Відправляю тестову заявку з 3D-сайту!
+                </div>
+                <div class="p-3 rounded-xl bg-surface border border-neon text-neon">
+                    ✅ <b>[ДОСТАВЛЕНО ЗА 0.14с]:</b> Супер, ${name}! Заявка вже на телефоні у YUKS. Натисніть зелену кнопку нижче, щоб продовжити прямо у Telegram!
+                </div>
+            `;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 7. ФРАЗИ ЛІТАЮЧОГО РОБОТИКА В КУТКУ
+        const botPhrases = [
+            "Привіт! 👋 Тисни на мене — переведу в Telegram і порахую проєкт за 1 хвилину!",
+            "Хочеш такий самий 3D-сайт або сайт? Заходь у наш Telegram-бот! 🚀",
+            "Потрібна презентація чи міні-програмка? Натисни сюди — оформимо заявку миттєво ✨"
+        ];
+        let phraseIndex = 0;
+        let bubbleManuallyClosed = false;
+        function hideBotBubble(e) {
+            e.stopPropagation();
+            document.getElementById('botBubble').classList.add('hidden-bubble');
+            bubbleManuallyClosed = true;
+        }
+        setInterval(() => {
+            if (bubbleManuallyClosed) return;
+            const bubble = document.getElementById('botBubble');
+            const textEl = document.getElementById('botBubbleText');
+            bubble.classList.add('hidden-bubble');
+            setTimeout(() => {
+                phraseIndex = (phraseIndex + 1) % botPhrases.length;
+                textEl.textContent = botPhrases[phraseIndex];
+                bubble.classList.remove('hidden-bubble');
+            }, 350);
+        }, 9000);
+    </script>
+</body>
+</html>
